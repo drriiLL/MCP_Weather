@@ -30,7 +30,18 @@ async def make_requests(rus_city: str) -> str:
             return f"Произошла ошибка: {e}"
 
 def get_doc_text(name: str) -> list:
-    doc = Document(os.path.join("C:\\VScode\\Python\\Ai\\code", name))
+    full_path = None
+
+    for root, dirs, files in os.walk("C:\\VScode"):
+        for file in files:
+            if file == name:
+                full_path = os.path.join(root, file)
+                break   
+
+    if not full_path:
+        return [f"Файл {name} не найден"]
+
+    doc = Document(full_path)
     text = []
     for paragraph in doc.paragraphs:
         if paragraph.text.strip():
@@ -40,12 +51,11 @@ def get_doc_text(name: str) -> list:
             for cell in row.cells:
                 if cell.text.strip():
                     text.append(cell.text)
-    return text
+    return "\n".join(text)
 
 @mcp.tool()
 async def create_doc(name: str, text: str) -> str:
-    """
-    Tool for create_doc
+    """Tool for create_doc
     
     Args:
         name: Name of file
